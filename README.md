@@ -38,3 +38,24 @@ Follow these instructions to set up and run the project locally.
    ```bash
    git clone https://github.com/your-username/task-management-api.git
    cd task-management-api
+2. **install dependencies
+   ```bash
+   npm install
+
+3. **Set up environment variables:
+   ```bash
+   Create a .env file in the root directory and add your MongoDB URI:
+   MONGO_URI=mongodb://localhost:27017/todo_db
+   PORT=5000
+
+4. **Run the server:
+   ```bash
+   npm run start
+
+API Endpoints
+Method	     Endpoint	                            Description
+GET	        /api/tasks	                         Get all tasks
+POST	        /api/tasks	                         Create a new task
+PUT	        /api/tasks/:id	                      Update a task by ID
+PATCH	        /api/tasks/:id/complete	             Mark a task as completed
+DELETE	     /api/tasks/:id	                      Delete a task by ID

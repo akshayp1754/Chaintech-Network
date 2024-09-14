@@ -12,18 +12,36 @@ const taskController = {
         dueDate,
         category,
       });
-      res.status(201).json(newTask);
+      return res.status(201).json({
+        message: "Task created successfully",
+        success: true,
+        data: newTask,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      console.log(error);
+      return res.status(500).json({
+        message: error.message,
+        success: false,
+        data: null,
+      });
     }
   },
 
   getTasks: async (req, res) => {
     try {
       const tasks = await Task.find().lean().exec();
-      res.status(200).json(tasks);
+      return res.status(200).json({
+        message: "Tasks fetched successfully",
+        success: true,
+        data: tasks,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      console.log(error);
+      return res.status(500).json({
+        message: error.message,
+        success: false,
+        data: null,
+      });
     }
   },
 
@@ -43,38 +61,77 @@ const taskController = {
       });
       if (!task) return res.status(404).json({ message: "Task not found" });
 
-      res.status(200).json(task);
+      return res.status(200).json({
+        message: "Task updated successfully",
+        success: true,
+        data: task,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      console.log(error);
+      return res.status(500).json({
+        message: error.message,
+        success: false,
+        data: null,
+      });
     }
   },
 
   completeTask: async (req, res) => {
     try {
       const { id } = req.params;
-
-      const task = await Task.findByIdAndUpdate(
-        id,
-        { completed: true },
-        { new: true }
-      );
-      if (!task) return res.status(404).json({ message: "Task not found" });
-      if (task.completed)
+  
+      // Find the task by ID first
+      const task = await Task.findById(id);
+      if (!task) {
+        return res.status(404).json({ message: "Task not found" });
+      }
+  
+      // Check if the task is already completed
+      if (task.completed) {
         return res.status(400).json({ message: "Task already completed" });
-
-      res.status(200).json(task);
+      }
+  
+      // If not, update the task to mark it as completed
+      task.completed = true;
+      await task.save();
+  
+      return res.status(200).json({
+        message: "Task updated successfully",
+        success: true,
+        data: task,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      if (error.name === "CastError") {
+        return res.status(400).json({
+          message: "Task ID is invalid",
+          success: false,
+          data: null,
+        });
+      }
+      console.log(error);
+      return res.status(500).json({
+        message: error.message,
+        success: false,
+        data: null,
+      });
     }
   },
+  
   deleteTask: async (req, res) => {
     try {
       const { id } = req.params;
 
-      await Task.findByIdAndRemove(id);
-      res.status(200).json({ message: "Task deleted successfully" });
+      await Task.findOneAndDelete({ _id: id });
+      return res.status(200).json({
+        message: "Task deleted successfully",
+        success: true,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      console.log(error);
+      return res.status(500).json({
+        message: error.message,
+        success: false,
+      });
     }
   },
 };
